@@ -3,7 +3,7 @@ FROM node:18
 
 #Copy package.json and package-lock.json (if available)
 COPY package*.json ./
-
+COPY . . 
 # Install dependencies
 
 # Copy the rest of the application code to the working directory
