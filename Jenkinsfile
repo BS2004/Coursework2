@@ -44,7 +44,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: '5931d32b-7202-43a3-8071-506c31d6e909', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                         sh "docker login -u bstewa301 -p cyberwolF21?"
 		        sh "docker tag cw2-server:1.0 bstewa301/cw2-server:1.0"
-			sh "docker push bstewa301/cw2-server1.0"
+			sh "docker push bstewa301/cw2-server:1.0"
                     }
 
                 }
