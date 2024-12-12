@@ -4,15 +4,14 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from Git repository
-                checkout scm
+                git 'https://github.com/BS2004/Coursework2'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
+                    echo "Building docker image cw2-server"
                     sh 'docker build -t cw2-server:1.0 .'
                 }
             }
@@ -21,6 +20,8 @@ pipeline {
         stage('Test Docker Container') {
             steps {
                 script {
+		    echo "Running test container"
+
                     sh 'docker run -d --name test-container cw2-server:1.0'
 
                     sh 'docker ps'
@@ -41,20 +42,14 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo cyberwolF21? | docker login -u bstewa301 --password-stdin'
+                        sh "docker login -u bstewa301 -p cyberwolF21?"
+		        sh "docker tag cw2-server:1.0 bstewa301/cw2-server:1.0"
+			sh "docker push bstewa301/cw2-server1.0"
                     }
 
-                    sh 'docker tag cw2-server:1.0 bstewa301/cw2-server:1.0'
-
-                    sh 'docker push bstewa301/cw2-server:1.0'
                 }
             }
         }
     }
 
-    post {
-        always {
-            sh 'docker system prune -f'
-        }
-    }
 }
