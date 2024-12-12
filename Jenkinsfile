@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/BS2004/Coursework2'
+               checkout scm
             }
         }
 
