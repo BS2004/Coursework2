@@ -15,6 +15,7 @@ pipeline {
                 git 'https://github.com/BS2004/Coursework2'  // Replace with your GitHub repository URL
             }
         }
+     }
         
         stage('Build Docker Image') {
             steps {
