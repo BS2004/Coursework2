@@ -1,68 +1,60 @@
 pipeline {
     agent any
 
- stage('Remove Container') {
-            steps {
-                script {
-                    sh "docker rm -f test-container"
-                }
-            }
-        }
-
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/BS2004/Coursework2'  // Replace with your GitHub repository URL
+                // Checkout the code from Git repository
+                checkout scm
             }
         }
-     }
-        
+
         stage('Build Docker Image') {
             steps {
                 script {
-                    echo "Building Docker image: cw2-server:1.0"
-                    sh "docker build -t cw2-server:1.0 ."
-                }
-            }
-        }
-        
-        stage('Run Container and Test') {
-            steps {
-                script {
-                    echo "Testing Docker container launch..."
-                    sh "docker run -d --name test-container cw2-server:1.0"
-                    
-                    def containerStatus = sh(script: "docker ps -q --filter name=test-container", returnStdout: true).trim()
-                    if (containerStatus) {
-                        echo "Docker container launched successfully."
-                    } else {
-                        error "Failed to launch Docker container."
-                    }
+                    // Build the Docker image
+                    sh 'docker build -t cw2-server:1.0 .'
                 }
             }
         }
 
-        stage('Remove Container') {
+        stage('Test Docker Container') {
             steps {
                 script {
-                    echo "Removing the container..."
-                    sh "docker rm -f test-container"
+                    sh 'docker run -d --name test-container cw2-server:1.0'
+
+                    sh 'docker ps'
+
                 }
             }
         }
 
-        stage('Push Image to Docker Hub') {
+        stage('Clean Up') {
             steps {
                 script {
-                    echo "Pushing Docker image to Docker Hub..."
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u bstewa301 -p cyberwolF21?"
-                        sh "docker tag cw2-server:1.0 bstewa301/cw2-server:1.0"
-                        sh "docker push bstewa301/cw2-server:1.0"
+                    sh 'docker rm -f test-container'
+                }
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                script {
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo cyberwolF21? | docker login -u bstewa301 --password-stdin'
                     }
+
+                    sh 'docker tag cw2-server:1.0 bstewa301/cw2-server:1.0'
+
+                    sh 'docker push bstewa301/cw2-server:1.0'
                 }
             }
         }
     }
 
-
+    post {
+        always {
+            sh 'docker system prune -f'
+        }
+    }
+}
