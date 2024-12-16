@@ -1,6 +1,8 @@
 FROM node:14
 
-COPY server.js . 
+WORKDIR /usr/src/app
+
+COPY . . 
 
 RUN npm install
 
